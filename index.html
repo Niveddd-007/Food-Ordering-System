@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoodieXpress - Home</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">FoodieXpress</div>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="checkout.html">Cart(<span id="cart-count">2</span>)</a></li>
+            <li><a href="#">Profile</a></li>
+        </ul>
+    </nav>
+    <header class="hero">
+        <h1>Find Your Favorite Food</h1>
+        <div class="search-bar">
+            <input type="text" placeholder="Search for restaurants, cuisines, or dishes...">
+            <button class="btn-search">Search</button>
+        </div>
+    </header>
+    <main>
+        <h2>Popular Restaurants</h2>
+        <div class="card-grid">
+            <!-- Burger King -->
+            <div class="card">
+                <div class="card-img">[ Image ]</div>
+                <div class="card-content">
+                    <h3>Burger King</h3>
+                    <p class="cuisine">Fast Food, Beverages</p>
+                    <p class="rating">★ 4.2 &bull; 30-40 min</p>
+                    <a href="restaurant_menu.html" class="btn-view" onclick="addToCart('Burger')">View Menu</a>
+                </div>
+            </div>
+            <!-- Pizza Hut -->
+            <div class="card">
+                <div class="card-img">[ Image ]</div>
+                <div class="card-content">
+                    <h3>Pizza Hut</h3>
+                    <p class="cuisine">Fast Food, Beverages</p>
+                    <p class="rating">★ 4.2 &bull; 30-40 min</p>
+                    <a href="restaurant_menu.html" class="btn-view" onclick="addToCart('Pizza')">View Menu</a>
+                </div>
+            </div>
+            <!-- KFC -->
+            <div class="card">
+                <div class="card-img">[ Image ]</div>
+                <div class="card-content">
+                    <h3>KFC</h3>
+                    <p class="cuisine">Fast Food, Beverages</p>
+                    <p class="rating">★ 4.2 &bull; 30-40 min</p>
+                    <a href="restaurant_menu.html" class="btn-view" onclick="addToCart('Chicken')">View Menu</a>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script src="script.js"></script>
+</body>
+</html>
