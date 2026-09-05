@@ -1,0 +1,70 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    background-color: #0c0c0e;
+    color: #f4f4f5;
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    overflow-x: hidden;
+  }
+}
+
+/* Glassmorphism & Custom Effects */
+.glass-panel {
+  background: rgba(22, 22, 26, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-panel-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.glass-panel-hover:hover {
+  background: rgba(28, 28, 34, 0.95);
+  border-color: rgba(255, 87, 34, 0.4);
+  box-shadow: 0 10px 30px -10px rgba(255, 87, 34, 0.25);
+  transform: translateY(-3px);
+}
+
+.glass-card {
+  background: rgba(18, 18, 21, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.neon-orange-gradient {
+  background: linear-gradient(135deg, #ff5722 0%, #ff7043 50%, #f4511e 100%);
+}
+
+.text-gradient-orange {
+  background: linear-gradient(135deg, #ff7043 0%, #ff5722 50%, #ffab91 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Custom Sleek Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #121215;
+}
+::-webkit-scrollbar-thumb {
+  background: #2a2a34;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #ff5722;
+}
+
+/* Hide scrollbar for category carousel */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
