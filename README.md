@@ -95,6 +95,43 @@ food-ordering-system/
 │
 └── README.md
 ```
+
+---
+
+## 🚀 Setup & Installation
+
+### Prerequisites
+- **Node.js** (v18+) & **npm**
+
+### Step 1: Initialize Database & Start Backend Server
+```bash
+cd backend
+npm install
+node src/db/init.js    # Initializes SQLite DDL, Views, Triggers & Seed Data
+npm start              # Starts Express REST API at http://localhost:5000
+```
+
+### Step 2: Start Frontend Development Client
+```bash
+cd frontend
+npm install
+npm run dev            # Starts Vite React client at http://localhost:5173
+```
+
+---
+
+## 🔐 Google OAuth Setup Guide
+
+To use real Google Sign-In with your own Google Cloud project:
+
+1. Go to the [Google Cloud Console Credentials Page](https://console.cloud.google.com/apis/credentials).
+2. Create a new **OAuth 2.0 Client ID** (Web application).
+3. Set Authorized JavaScript origins to `http://localhost:5173`.
+4. Copy your Client ID and add it to `frontend/.env`:
+   ```env
+   VITE_GOOGLE_CLIENT_ID=your_google_client_id_here.apps.googleusercontent.com
+   ```
+5. Add the client ID to `backend/.env`:
    ```env
    GOOGLE_CLIENT_ID=your_google_client_id_here.apps.googleusercontent.com
    ```
