@@ -9,30 +9,9 @@ if (!fs.existsSync(dbDir)) {
     fs.mkdirSync(dbDir, { recursive: true });
 }
 
-let dbInstance = null;
-
-// Synchronous load wrapper
-function getDbInstance() {
-    if (dbInstance) return dbInstance;
-
-    // Load file if exists
-    let fileBuffer = null;
-    if (fs.existsSync(dbPath)) {
-        try {
-            fileBuffer = fs.readFileSync(dbPath);
-        } catch (e) {
-            console.error('Error reading db file:', e);
-        }
-    }
-
-    // Initialize sql.js synchronously via initSqlJs
-    // Note: initSqlJs returns a promise, so we resolve it once on boot
-    throw new Error('Database not initialized yet. Call initDatabase() first.');
-}
-
-// Global state
 let db = null;
 let SQL = null;
+let inTransaction = false;
 
 async function initDbConnection() {
     if (db) return db;
@@ -49,7 +28,7 @@ async function initDbConnection() {
 }
 
 function saveDb() {
-    if (!db) return;
+    if (!db || inTransaction) return;
     try {
         const data = db.export();
         const buffer = Buffer.from(data);
@@ -68,15 +47,25 @@ const dbWrapper = {
 
     exec(sql) {
         if (!db) throw new Error('Database not initialized');
+        const clean = sql.trim().toUpperCase();
+        if (clean.startsWith('BEGIN')) {
+            inTransaction = true;
+        }
+
         db.run(sql);
-        saveDb();
+
+        if (clean.startsWith('COMMIT') || clean.startsWith('ROLLBACK')) {
+            inTransaction = false;
+            saveDb();
+        } else if (!inTransaction) {
+            saveDb();
+        }
     },
 
     prepare(sql) {
         return {
             all(...params) {
                 if (!db) throw new Error('Database not initialized');
-                // Handle array passed as single argument
                 const args = (params.length === 1 && Array.isArray(params[0])) ? params[0] : params;
                 const stmt = db.prepare(sql);
                 stmt.bind(args);
@@ -115,7 +104,9 @@ const dbWrapper = {
                     changes = lastIdRes[0].values[0][1];
                 }
                 
-                saveDb();
+                if (!inTransaction) {
+                    saveDb();
+                }
                 return { lastInsertRowid, changes };
             }
         };
