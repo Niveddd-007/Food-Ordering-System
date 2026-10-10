@@ -14,14 +14,16 @@ router.get('/cart', authenticateToken, (req, res) => {
             cart = db.prepare('SELECT * FROM carts WHERE cart_id = ?').get(resInsert.lastInsertRowid);
         }
 
-        const items = db.prepare(`
+        const rawItems = db.prepare(`
             SELECT 
                 ci.cart_item_id,
                 ci.quantity,
+                ci.selected_variant,
+                ci.selected_addons,
                 mi.item_id,
                 mi.name,
                 mi.description,
-                mi.price,
+                mi.price as base_price,
                 mi.image_url,
                 mi.is_veg,
                 mi.is_available,
@@ -32,6 +34,45 @@ router.get('/cart', authenticateToken, (req, res) => {
             JOIN restaurants r ON mi.restaurant_id = r.restaurant_id
             WHERE ci.cart_id = ?
         `).all(cart.cart_id);
+
+        const items = rawItems.map(item => {
+            let variant = null;
+            let addons = [];
+            let adjustedPrice = Number(item.base_price);
+
+            if (item.selected_variant) {
+                try {
+                    variant = typeof item.selected_variant === 'string' ? JSON.parse(item.selected_variant) : item.selected_variant;
+                    if (variant && variant.price_adjustment) {
+                        adjustedPrice += Number(variant.price_adjustment);
+                    }
+                } catch (e) {
+                    variant = { name: item.selected_variant, price_adjustment: 0 };
+                }
+            }
+
+            if (item.selected_addons) {
+                try {
+                    addons = typeof item.selected_addons === 'string' ? JSON.parse(item.selected_addons) : item.selected_addons;
+                    if (Array.isArray(addons)) {
+                        for (const addon of addons) {
+                            if (addon && addon.price) adjustedPrice += Number(addon.price);
+                        }
+                    }
+                } catch (e) {
+                    addons = [];
+                }
+            }
+
+            adjustedPrice = +(adjustedPrice.toFixed(2));
+
+            return {
+                ...item,
+                price: adjustedPrice,
+                variant,
+                addons
+            };
+        });
 
         let restaurant = null;
         if (cart.restaurant_id) {
@@ -60,11 +101,11 @@ router.get('/cart', authenticateToken, (req, res) => {
     }
 });
 
-// Add item to cart (Handles single-restaurant cart restriction)
+// Add item to cart (with variant & addons support + single-restaurant check)
 router.post('/cart/add', authenticateToken, (req, res) => {
     try {
         const customerId = req.user.id;
-        const { item_id, quantity = 1 } = req.body;
+        const { item_id, quantity = 1, variant = null, addons = [] } = req.body;
 
         if (!item_id) {
             return res.status(400).json({ error: 'item_id is required' });
@@ -89,12 +130,19 @@ router.post('/cart/add', authenticateToken, (req, res) => {
             db.prepare('UPDATE carts SET restaurant_id = ? WHERE cart_id = ?').run(item.restaurant_id, cart.cart_id);
         }
 
-        // Check if item already exists in cart
-        const existing = db.prepare('SELECT * FROM cart_items WHERE cart_id = ? AND item_id = ?').get(cart.cart_id, item_id);
+        const variantStr = variant ? JSON.stringify(variant) : null;
+        const addonsStr = addons && addons.length > 0 ? JSON.stringify(addons) : null;
+
+        // Check if exact same item configuration already exists in cart
+        const existing = db.prepare(`
+            SELECT * FROM cart_items 
+            WHERE cart_id = ? AND item_id = ? AND (selected_variant IS ? OR selected_variant = ?) AND (selected_addons IS ? OR selected_addons = ?)
+        `).get(cart.cart_id, item_id, variantStr, variantStr, addonsStr, addonsStr);
+
         if (existing) {
             db.prepare('UPDATE cart_items SET quantity = quantity + ? WHERE cart_item_id = ?').run(quantity, existing.cart_item_id);
         } else {
-            db.prepare('INSERT INTO cart_items (cart_id, item_id, quantity) VALUES (?, ?, ?)').run(cart.cart_id, item_id, quantity);
+            db.prepare('INSERT INTO cart_items (cart_id, item_id, quantity, selected_variant, selected_addons) VALUES (?, ?, ?, ?, ?)').run(cart.cart_id, item_id, quantity, variantStr, addonsStr);
         }
 
         res.json({ message: 'Item added to cart successfully' });
@@ -150,11 +198,12 @@ router.delete('/cart/remove/:cart_item_id', authenticateToken, (req, res) => {
 
         res.json({ message: 'Item removed from cart' });
     } catch (err) {
+        console.error('Error removing cart item:', err);
         res.status(500).json({ error: 'Failed to remove item' });
     }
 });
 
-// Clear cart
+// Clear active cart
 router.delete('/cart/clear', authenticateToken, (req, res) => {
     try {
         const customerId = req.user.id;
@@ -165,6 +214,7 @@ router.delete('/cart/clear', authenticateToken, (req, res) => {
         }
         res.json({ message: 'Cart cleared' });
     } catch (err) {
+        console.error('Error clearing cart:', err);
         res.status(500).json({ error: 'Failed to clear cart' });
     }
 });
