@@ -1,22 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Clock, RefreshCw, ChevronRight, ShoppingBag } from 'lucide-react';
+import { Clock, RefreshCw, ChevronRight, ShoppingBag, Search, Filter, Receipt, FileText } from 'lucide-react';
 import { api } from '../api';
 import { Order } from '../types';
+import { InvoiceReceiptModal } from '../components/InvoiceReceiptModal';
 
 export const OrderHistoryPage: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [selectedStatus, setSelectedStatus] = useState<string>('All');
+  const [invoiceOrder, setInvoiceOrder] = useState<Order | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     loadHistory();
-  }, []);
+  }, [searchQuery, selectedStatus]);
 
   const loadHistory = async () => {
     setLoading(true);
     try {
-      const data = await api.getOrderHistory();
+      const data = await api.getOrderHistory({
+        search: searchQuery.trim() || undefined,
+        status: selectedStatus === 'All' ? undefined : selectedStatus,
+      });
       setOrders(data);
     } catch (err) {
       console.error(err);
@@ -35,21 +42,56 @@ export const OrderHistoryPage: React.FC = () => {
     }
   };
 
+  const statusFilters = ['All', 'Placed', 'Preparing', 'Out for Delivery', 'Delivered', 'Cancelled'];
+
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 space-y-6 text-zinc-100">
-      
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-black font-['Outfit']">Your QuickBite! Orders</h1>
-          <p className="text-xs text-zinc-400">Track live orders or reorder past favorites</p>
+          <p className="text-xs text-zinc-400">Track live orders, download tax invoices, or reorder past favorites</p>
         </div>
         <button
           onClick={loadHistory}
-          className="p-2 rounded-xl text-zinc-400 hover:text-zinc-100 bg-zinc-900 border border-zinc-800 transition-colors"
+          className="self-start sm:self-center p-2 rounded-xl text-zinc-400 hover:text-zinc-100 bg-zinc-900 border border-zinc-800 transition-colors flex items-center gap-1.5 text-xs font-semibold"
           title="Refresh History"
         >
           <RefreshCw className="w-4 h-4" />
+          <span>Refresh</span>
         </button>
+      </div>
+
+      {/* Search Bar & Status Filters */}
+      <div className="space-y-3 bg-zinc-900/60 p-4 rounded-3xl border border-zinc-800">
+        <div className="relative">
+          <Search className="w-4 h-4 text-zinc-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <input
+            type="text"
+            placeholder="Search by restaurant name or dishes..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl pl-10 pr-4 py-2.5 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-brand-500"
+          />
+        </div>
+
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+          <span className="text-xs text-zinc-500 font-bold flex items-center gap-1 shrink-0 mr-1">
+            <Filter className="w-3.5 h-3.5 text-brand-500" /> Filter:
+          </span>
+          {statusFilters.map((st) => (
+            <button
+              key={st}
+              onClick={() => setSelectedStatus(st)}
+              className={`px-3 py-1 rounded-full text-xs font-bold transition-all shrink-0 ${
+                selectedStatus === st
+                  ? 'bg-brand-500 text-white shadow-glow-orange'
+                  : 'bg-zinc-800/80 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800'
+              }`}
+            >
+              {st}
+            </button>
+          ))}
+        </div>
       </div>
 
       {loading ? (
@@ -61,10 +103,18 @@ export const OrderHistoryPage: React.FC = () => {
       ) : orders.length === 0 ? (
         <div className="bg-zinc-900/50 rounded-3xl p-12 text-center text-zinc-500 border border-zinc-800 space-y-3">
           <ShoppingBag className="w-12 h-12 stroke-1 mx-auto text-zinc-600" />
-          <h3 className="font-bold text-zinc-200 text-base">No past orders found</h3>
-          <p className="text-xs text-zinc-400">You haven't placed any food orders yet.</p>
+          <h3 className="font-bold text-zinc-200 text-base">No orders found</h3>
+          <p className="text-xs text-zinc-400">
+            {searchQuery || selectedStatus !== 'All'
+              ? 'Try clearing your search or filter pills.'
+              : "You haven't placed any food orders yet."}
+          </p>
           <button
-            onClick={() => navigate('/')}
+            onClick={() => {
+              setSearchQuery('');
+              setSelectedStatus('All');
+              navigate('/');
+            }}
             className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-brand-500 to-amber-500 text-white font-bold text-xs shadow-glow-orange"
           >
             Start Browsing
@@ -107,9 +157,9 @@ export const OrderHistoryPage: React.FC = () => {
                 </div>
               </div>
 
-              <div className="text-xs text-zinc-300 bg-zinc-950 p-3 rounded-2xl border border-zinc-800/80">
+              <div className="text-xs text-zinc-300 bg-zinc-950 p-3 rounded-2xl border border-zinc-800/80 flex flex-wrap gap-2">
                 {order.items?.map((item) => (
-                  <span key={item.order_item_id} className="mr-3 font-semibold">
+                  <span key={item.order_item_id} className="font-semibold bg-zinc-900 px-2 py-0.5 rounded-md border border-zinc-800">
                     {item.quantity}x {item.name}
                   </span>
                 ))}
@@ -117,19 +167,40 @@ export const OrderHistoryPage: React.FC = () => {
 
               <div className="flex items-center justify-between text-xs pt-1">
                 <span className="font-black text-zinc-100 text-sm font-['Outfit']">${order.total_amount.toFixed(2)}</span>
-                
-                <button
-                  onClick={(e) => handleReorder(e, order.order_id)}
-                  className="px-4 py-1.5 rounded-xl bg-brand-500/10 hover:bg-brand-500 hover:text-white text-brand-400 font-bold text-xs border border-brand-500/30 transition-all"
-                >
-                  Reorder
-                </button>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setInvoiceOrder(order);
+                    }}
+                    className="px-3 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-bold text-xs border border-zinc-700 transition-all flex items-center gap-1.5"
+                    title="View & Download PDF Invoice"
+                  >
+                    <FileText className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Invoice</span>
+                  </button>
+
+                  <button
+                    onClick={(e) => handleReorder(e, order.order_id)}
+                    className="px-4 py-1.5 rounded-xl bg-brand-500/10 hover:bg-brand-500 hover:text-white text-brand-400 font-bold text-xs border border-brand-500/30 transition-all"
+                  >
+                    Reorder
+                  </button>
+                </div>
               </div>
             </div>
           ))}
         </div>
       )}
 
+      {/* Invoice Receipt Modal */}
+      <InvoiceReceiptModal
+        order={invoiceOrder}
+        isOpen={Boolean(invoiceOrder)}
+        onClose={() => setInvoiceOrder(null)}
+      />
     </div>
   );
 };
+
