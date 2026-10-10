@@ -92,6 +92,20 @@ router.get('/restaurants/:id', (req, res) => {
         const categories = db.prepare('SELECT * FROM menu_categories WHERE restaurant_id = ? ORDER BY sort_order ASC').all(restaurantId);
         const items = db.prepare('SELECT * FROM menu_items WHERE restaurant_id = ? ORDER BY item_id ASC').all(restaurantId);
 
+        // Attach variants and addons for customization
+        items.forEach(item => {
+            try {
+                item.variants = db.prepare('SELECT * FROM menu_item_variants WHERE item_id = ? ORDER BY variant_id ASC').all(item.item_id);
+            } catch (e) {
+                item.variants = [];
+            }
+            try {
+                item.addons = db.prepare('SELECT * FROM menu_item_addons WHERE item_id = ? ORDER BY addon_id ASC').all(item.item_id);
+            } catch (e) {
+                item.addons = [];
+            }
+        });
+
         const categorizedMenu = categories.map(cat => ({
             ...cat,
             items: items.filter(item => item.category_id === cat.category_id)
