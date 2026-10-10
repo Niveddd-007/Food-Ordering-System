@@ -61,9 +61,13 @@ router.post('/login', async (req, res) => {
 
         const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email.toLowerCase().trim());
 
-        if (!user || !user.password_hash) {
-            return res.status(401).json({ error: 'Invalid email or password' });
-        }
+        if (!user) {
+    return res.status(401).json({ error: 'DEBUG: Demo user not found in database' });
+}
+
+if (!user.password_hash) {
+    return res.status(401).json({ error: 'DEBUG: User has no password hash' });
+}
 
         const match = await bcrypt.compare(password, user.password_hash);
         if (!match) {
