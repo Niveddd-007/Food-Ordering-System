@@ -31,7 +31,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         })
         .finally(() => setLoading(false));
     } else {
-      setLoading(false);
+      // Automatic Login Preset: If user hasn't logged in yet, auto-login with default dummy customer
+      api.login({ email: 'customer1@demo.local', password: 'demo123' })
+        .then(res => {
+          localStorage.setItem('auth_token', res.token);
+          setToken(res.token);
+          setUser(res.user);
+        })
+        .catch(err => {
+          console.warn('Auto-login notice:', err);
+        })
+        .finally(() => setLoading(false));
     }
   }, [token]);
 
