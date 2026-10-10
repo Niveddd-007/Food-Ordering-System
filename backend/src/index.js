@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const initDb = require('./db/init');
+const { initDb } = require('./db/init');
 
 const authRoutes = require('./routes/auth');
 const restaurantRoutes = require('./routes/restaurants');
@@ -13,6 +13,8 @@ const deliveryRoutes = require('./routes/delivery');
 const reviewRoutes = require('./routes/reviews');
 const favoriteRoutes = require('./routes/favorites');
 const dbQueriesRoutes = require('./routes/dbQueries');
+const couponRoutes = require('./routes/coupons');
+const acidDemoRoutes = require('./routes/acidDemo');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -35,6 +37,8 @@ app.use(express.json());
         app.use('/api', reviewRoutes);
         app.use('/api', favoriteRoutes);
         app.use('/api', dbQueriesRoutes);
+        app.use('/api', couponRoutes);
+        app.use('/api', acidDemoRoutes);
 
         // Health Check
         app.get('/api/health', (req, res) => {
