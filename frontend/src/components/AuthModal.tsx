@@ -155,12 +155,72 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
             </button>
           </div>
 
-          <div className="relative my-4">
+          {/* Quick Demo Preset Accounts */}
+          <div className="bg-zinc-950/80 p-3.5 rounded-2xl border border-zinc-800 space-y-2">
+            <div className="flex items-center justify-between text-[11px] font-bold text-zinc-400">
+              <span className="flex items-center gap-1 text-brand-400">
+                <Zap className="w-3.5 h-3.5 fill-brand-400 text-brand-400" /> One-Click Preset Logins:
+              </span>
+              <span className="text-[10px] text-zinc-500 font-mono">pwd: demo123</span>
+            </div>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <button
+                type="button"
+                onClick={() => {
+                  setEmail('customer1@demo.local');
+                  setPassword('demo123');
+                  setIsLogin(true);
+                }}
+                className="py-1.5 px-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700/60 text-zinc-200 text-left transition-all hover:border-brand-500/50"
+              >
+                <div className="font-extrabold text-[11px] text-white">🍔 Customer</div>
+                <div className="text-[10px] text-zinc-400 truncate">customer1@demo.local</div>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setEmail('admin1@demo.local');
+                  setPassword('demo123');
+                  setIsLogin(true);
+                }}
+                className="py-1.5 px-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700/60 text-zinc-200 text-left transition-all hover:border-blue-500/50"
+              >
+                <div className="font-extrabold text-[11px] text-blue-400">🍕 Rest. Admin</div>
+                <div className="text-[10px] text-zinc-400 truncate">admin1@demo.local</div>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setEmail('delivery1@demo.local');
+                  setPassword('demo123');
+                  setIsLogin(true);
+                }}
+                className="py-1.5 px-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700/60 text-zinc-200 text-left transition-all hover:border-emerald-500/50"
+              >
+                <div className="font-extrabold text-[11px] text-emerald-400">🚴 Delivery</div>
+                <div className="text-[10px] text-zinc-400 truncate">delivery1@demo.local</div>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setEmail('superadmin@demo.local');
+                  setPassword('demo123');
+                  setIsLogin(true);
+                }}
+                className="py-1.5 px-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700/60 text-zinc-200 text-left transition-all hover:border-purple-500/50"
+              >
+                <div className="font-extrabold text-[11px] text-purple-400">⚡ Platform Admin</div>
+                <div className="text-[10px] text-zinc-400 truncate">superadmin@demo.local</div>
+              </button>
+            </div>
+          </div>
+
+          <div className="relative my-3">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-zinc-800" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-[#121215] px-2 text-zinc-500 font-bold">Or with email</span>
+              <span className="bg-[#121215] px-2 text-zinc-500 font-bold">Or enter credentials</span>
             </div>
           </div>
 
