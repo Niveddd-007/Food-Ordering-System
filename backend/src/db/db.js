@@ -15,7 +15,9 @@ let inTransaction = false;
 
 async function initDbConnection() {
     if (db) return db;
-    SQL = await initSqlJs();
+    SQL = await initSqlJs({
+    locateFile: (file) => require.resolve(`sql.js/dist/${file}`)
+});
     if (fs.existsSync(dbPath)) {
         const filebuffer = fs.readFileSync(dbPath);
         db = new SQL.Database(filebuffer);
