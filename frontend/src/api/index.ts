@@ -1,6 +1,6 @@
 import { User, Restaurant, Cuisine, MenuCategory, Cart, Order, DbQueryMeta, DbQueryResult, Coupon, AcidSimulateResult, MenuItemVariant, MenuItemAddon } from '../types';
 
-const API_BASE = '/api';
+const API_BASE = 'https://food-ordering-system-zu61.vercel.app/api';
 
 function getAuthHeaders() {
   const token = localStorage.getItem('auth_token');
