@@ -6,6 +6,7 @@ import { CartProvider } from './context/CartContext';
 import { Navbar } from './components/Navbar';
 import { AuthModal } from './components/AuthModal';
 import { CartDrawer } from './components/CartDrawer';
+import { EmberBackground } from './components/EmberBackground';
 
 import { HomePage } from './pages/HomePage';
 import { RestaurantPage } from './pages/RestaurantPage';
@@ -29,11 +30,13 @@ export const AppContent: React.FC = () => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#0c0c0e] text-zinc-100 flex flex-col selection:bg-brand-500 selection:text-white">
-      <Navbar onOpenAuthModal={() => setIsAuthModalOpen(true)} />
-      <CartDrawer />
+    <div className="relative min-h-screen bg-[#0c0c0e] text-zinc-100 flex flex-col selection:bg-brand-500 selection:text-white">
+      <EmberBackground />
+      <div className="relative z-10 flex flex-col flex-1">
+        <Navbar onOpenAuthModal={() => setIsAuthModalOpen(true)} />
+        <CartDrawer />
 
-      <main className="flex-1">
+        <main className="flex-1">
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/restaurant/:id" element={<RestaurantPage />} />
@@ -105,6 +108,7 @@ export const AppContent: React.FC = () => {
       </footer>
 
       <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
+      </div>
     </div>
   );
 };
