@@ -92,6 +92,40 @@ CREATE TABLE IF NOT EXISTS menu_items (
     FOREIGN KEY (category_id) REFERENCES menu_categories(category_id) ON DELETE RESTRICT
 );
 
+-- 7A. MENU_ITEM_VARIANTS TABLE (e.g. Size / Portion)
+CREATE TABLE IF NOT EXISTS menu_item_variants (
+    variant_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    item_id INTEGER NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    price_adjustment DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    FOREIGN KEY (item_id) REFERENCES menu_items(item_id) ON DELETE CASCADE
+);
+
+-- 7B. MENU_ITEM_ADDONS TABLE (e.g. Extra Cheese, Toppings)
+CREATE TABLE IF NOT EXISTS menu_item_addons (
+    addon_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    item_id INTEGER NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    price DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    FOREIGN KEY (item_id) REFERENCES menu_items(item_id) ON DELETE CASCADE
+);
+
+-- 7C. COUPONS TABLE (Discounts & Promo Codes Engine)
+CREATE TABLE IF NOT EXISTS coupons (
+    coupon_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    code VARCHAR(50) NOT NULL UNIQUE,
+    description TEXT NULL,
+    discount_type VARCHAR(20) NOT NULL CHECK (discount_type IN ('percentage', 'flat')),
+    discount_value DECIMAL(10,2) NOT NULL CHECK (discount_value > 0),
+    min_order_amount DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    max_discount DECIMAL(10,2) NULL,
+    usage_limit INTEGER DEFAULT 100,
+    used_count INTEGER DEFAULT 0,
+    expiry_date DATE NOT NULL,
+    is_active BOOLEAN DEFAULT 1,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
 -- 8. CARTS TABLE
 CREATE TABLE IF NOT EXISTS carts (
     cart_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -108,6 +142,8 @@ CREATE TABLE IF NOT EXISTS cart_items (
     cart_id INTEGER NOT NULL,
     item_id INTEGER NOT NULL,
     quantity INTEGER NOT NULL CHECK (quantity > 0),
+    selected_variant TEXT NULL,
+    selected_addons TEXT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (cart_id) REFERENCES carts(cart_id) ON DELETE CASCADE,
     FOREIGN KEY (item_id) REFERENCES menu_items(item_id) ON DELETE CASCADE
@@ -125,6 +161,8 @@ CREATE TABLE IF NOT EXISTS orders (
     subtotal_amount DECIMAL(10,2) NOT NULL DEFAULT 0.00,
     tax_amount DECIMAL(10,2) NOT NULL DEFAULT 0.00,
     delivery_fee DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    discount_amount DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    coupon_code VARCHAR(50) NULL,
     total_amount DECIMAL(10,2) NOT NULL DEFAULT 0.00,
     notes TEXT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -141,6 +179,8 @@ CREATE TABLE IF NOT EXISTS order_items (
     item_id INTEGER NOT NULL,
     quantity INTEGER NOT NULL CHECK (quantity > 0),
     price_at_order_time DECIMAL(10,2) NOT NULL,
+    selected_variant TEXT NULL,
+    selected_addons TEXT NULL,
     FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE,
     FOREIGN KEY (item_id) REFERENCES menu_items(item_id) ON DELETE RESTRICT
 );
