@@ -6,16 +6,16 @@
 -- 1. USERS (Password for all local users is: demo123)
 -- bcrypt hash for 'demo123': $2a$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeg6Lruj3vjPGga31lW
 INSERT INTO users (user_id, name, email, password_hash, auth_provider, google_id, phone, role, profile_image_url) VALUES
-(1, 'Customer One', 'customer1@demo.local', '$2a$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeg6Lruj3vjPGga31lW', 'local', NULL, '+1 555-0101', 'customer', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=250&q=80'),
-(2, 'Sarah Jenkins', 'sarah@demo.local', '$2a$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeg6Lruj3vjPGga31lW', 'local', NULL, '+1 555-0102', 'customer', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=250&q=80'),
+(1, 'Customer One', 'customer1@demo.local', '$2a$10$1V2RXNO01V5CBSUDmE0z2.shT40V0KqTX6Q8lcpsb/I4jutyMWMgC', 'local', NULL, '+1 555-0101', 'customer', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=250&q=80'),
+(2, 'Sarah Jenkins', 'sarah@demo.local', '$2a$10$1V2RXNO01V5CBSUDmE0z2.shT40V0KqTX6Q8lcpsb/I4jutyMWMgC', 'local', NULL, '+1 555-0102', 'customer', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=250&q=80'),
 (3, 'Alex Mercer (Google User)', 'alex.mercer@gmail.com', NULL, 'google', 'google-oauth2-10987654321', '+1 555-0103', 'customer', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=250&q=80'),
-(4, 'Bella Italia Admin', 'admin1@demo.local', '$2a$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeg6Lruj3vjPGga31lW', 'local', NULL, '+1 555-0201', 'restaurant_admin', 'https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&w=250&q=80'),
-(5, 'Burger Haven Admin', 'admin2@demo.local', '$2a$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeg6Lruj3vjPGga31lW', 'local', NULL, '+1 555-0202', 'restaurant_admin', 'https://images.unsplash.com/photo-1583394838336-acd977736f90?auto=format&fit=crop&w=250&q=80'),
-(6, 'Spice Route Admin', 'admin3@demo.local', '$2a$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeg6Lruj3vjPGga31lW', 'local', NULL, '+1 555-0203', 'restaurant_admin', 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=250&q=80'),
-(7, 'Mike Delivery', 'delivery1@demo.local', '$2a$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeg6Lruj3vjPGga31lW', 'local', NULL, '+1 555-0301', 'delivery', 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=250&q=80'),
-(8, 'David Courier', 'delivery2@demo.local', '$2a$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeg6Lruj3vjPGga31lW', 'local', NULL, '+1 555-0302', 'delivery', 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=250&q=80'),
-(9, 'System SuperAdmin', 'superadmin@demo.local', '$2a$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeg6Lruj3vjPGga31lW', 'local', NULL, '+1 555-0900', 'admin', 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=250&q=80'),
-(10, 'Dormant User', 'dormant@demo.local', '$2a$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeg6Lruj3vjPGga31lW', 'local', NULL, '+1 555-0104', 'customer', NULL);
+(4, 'Bella Italia Admin', 'admin1@demo.local', '$2a$10$1V2RXNO01V5CBSUDmE0z2.shT40V0KqTX6Q8lcpsb/I4jutyMWMgC', 'local', NULL, '+1 555-0201', 'restaurant_admin', 'https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&w=250&q=80'),
+(5, 'Burger Haven Admin', 'admin2@demo.local', '$2a$10$1V2RXNO01V5CBSUDmE0z2.shT40V0KqTX6Q8lcpsb/I4jutyMWMgC', 'local', NULL, '+1 555-0202', 'restaurant_admin', 'https://images.unsplash.com/photo-1583394838336-acd977736f90?auto=format&fit=crop&w=250&q=80'),
+(6, 'Spice Route Admin', 'admin3@demo.local', '$2a$10$1V2RXNO01V5CBSUDmE0z2.shT40V0KqTX6Q8lcpsb/I4jutyMWMgC', 'local', NULL, '+1 555-0203', 'restaurant_admin', 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=250&q=80'),
+(7, 'Mike Delivery', 'delivery1@demo.local', '$2a$10$1V2RXNO01V5CBSUDmE0z2.shT40V0KqTX6Q8lcpsb/I4jutyMWMgC', 'local', NULL, '+1 555-0301', 'delivery', 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=250&q=80'),
+(8, 'David Courier', 'delivery2@demo.local', '$2a$10$1V2RXNO01V5CBSUDmE0z2.shT40V0KqTX6Q8lcpsb/I4jutyMWMgC', 'local', NULL, '+1 555-0302', 'delivery', 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=250&q=80'),
+(9, 'System SuperAdmin', 'superadmin@demo.local', '$2a$10$1V2RXNO01V5CBSUDmE0z2.shT40V0KqTX6Q8lcpsb/I4jutyMWMgC', 'local', NULL, '+1 555-0900', 'admin', 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=250&q=80'),
+(10, 'Dormant User', 'dormant@demo.local', '$2a$10$1V2RXNO01V5CBSUDmE0z2.shT40V0KqTX6Q8lcpsb/I4jutyMWMgC', 'local', NULL, '+1 555-0104', 'customer', NULL);
 
 -- 2. ADDRESSES
 INSERT INTO addresses (address_id, user_id, label, street_address, city, state, postal_code, is_default) VALUES
