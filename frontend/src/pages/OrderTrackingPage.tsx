@@ -1,16 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Bike, MapPin, Phone, Star, RefreshCw, ArrowLeft } from 'lucide-react';
+import { Bike, MapPin, Phone, Star, RefreshCw, ArrowLeft, Receipt, ShieldCheck } from 'lucide-react';
 import { api } from '../api';
 import { Order } from '../types';
 import { OrderStepper } from '../components/OrderStepper';
 import { ReviewModal } from '../components/ReviewModal';
+import { AnimatedDeliveryMap } from '../components/AnimatedDeliveryMap';
+import { InvoiceReceiptModal } from '../components/InvoiceReceiptModal';
+import { sounds } from '../utils/soundEffects';
 
 export const OrderTrackingPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState<boolean>(false);
+  const [isInvoiceOpen, setIsInvoiceOpen] = useState<boolean>(false);
+  const prevStatusRef = useRef<string | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -19,7 +24,7 @@ export const OrderTrackingPage: React.FC = () => {
 
       const interval = setInterval(() => {
         fetchOrderDetails(parseInt(id), true);
-      }, 5000);
+      }, 4000);
 
       return () => clearInterval(interval);
     }
@@ -29,6 +34,13 @@ export const OrderTrackingPage: React.FC = () => {
     if (!silent) setLoading(true);
     try {
       const data = await api.getOrderDetails(orderId);
+      
+      // Check if status changed in real-time -> play notification chime!
+      if (prevStatusRef.current && prevStatusRef.current !== data.order_status) {
+        sounds.playKitchenBellSound();
+      }
+      prevStatusRef.current = data.order_status;
+
       setOrder(data);
     } catch (err) {
       console.error(err);
@@ -48,14 +60,23 @@ export const OrderTrackingPage: React.FC = () => {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 space-y-6 text-zinc-100">
-      
-      <button
-        onClick={() => navigate('/orders')}
-        className="flex items-center gap-1.5 text-xs font-semibold text-zinc-400 hover:text-zinc-100 transition-colors"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        Back to Order History
-      </button>
+      <div className="flex items-center justify-between">
+        <button
+          onClick={() => navigate('/orders')}
+          className="flex items-center gap-1.5 text-xs font-semibold text-zinc-400 hover:text-zinc-100 transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back to Order History
+        </button>
+
+        <button
+          onClick={() => setIsInvoiceOpen(true)}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-200 text-xs font-bold transition-all"
+        >
+          <Receipt className="w-4 h-4 text-brand-400" />
+          <span>Download Receipt (PDF)</span>
+        </button>
+      </div>
 
       {/* Header Banner */}
       <div className="bg-gradient-to-r from-brand-600 via-brand-500 to-amber-600 rounded-3xl p-6 text-white shadow-glow-orange flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -71,6 +92,13 @@ export const OrderTrackingPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Live Animated Telemetry Map */}
+      <AnimatedDeliveryMap
+        restaurantName={order.restaurant_name}
+        deliveryAddress={order.delivery_address}
+        orderStatus={order.order_status}
+      />
+
       {/* Visual Status Stepper */}
       <div className="bg-zinc-900/90 p-6 rounded-3xl border border-zinc-800 shadow-xl">
         <h3 className="text-sm font-extrabold text-zinc-100 mb-2 font-['Outfit']">Order Lifecycle Progression</h3>
@@ -78,7 +106,6 @@ export const OrderTrackingPage: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        
         {/* Delivery Details */}
         <div className="bg-zinc-900/90 p-5 rounded-3xl border border-zinc-800 shadow-xl space-y-4">
           <h3 className="font-extrabold text-sm text-zinc-100 flex items-center gap-2">
@@ -95,20 +122,24 @@ export const OrderTrackingPage: React.FC = () => {
               </div>
             </div>
 
-            {order.delivery_driver_name ? (
+            {order.delivery_driver_name || order.driver_name ? (
               <div className="p-3 rounded-2xl bg-zinc-950 border border-zinc-800 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-brand-500 text-white font-bold flex items-center justify-center shadow-glow-orange">
-                    {order.delivery_driver_name.charAt(0)}
+                    {(order.delivery_driver_name || order.driver_name || 'D').charAt(0)}
                   </div>
                   <div>
-                    <span className="font-extrabold text-zinc-100 block">{order.delivery_driver_name}</span>
-                    <span className="text-[11px] text-zinc-400">{order.vehicle_type} • {order.license_plate}</span>
+                    <span className="font-extrabold text-zinc-100 block">
+                      {order.delivery_driver_name || order.driver_name}
+                    </span>
+                    <span className="text-[11px] text-zinc-400">
+                      {order.vehicle_type || 'Motorbike'} • {order.license_plate || 'Assigned'}
+                    </span>
                   </div>
                 </div>
-                {order.delivery_driver_phone && (
+                {(order.delivery_driver_phone || order.driver_phone) && (
                   <a
-                    href={`tel:${order.delivery_driver_phone}`}
+                    href={`tel:${order.delivery_driver_phone || order.driver_phone}`}
                     className="p-2 rounded-xl bg-zinc-800 text-brand-400 hover:bg-brand-500 hover:text-white transition-colors"
                   >
                     <Phone className="w-4 h-4" />
@@ -125,13 +156,25 @@ export const OrderTrackingPage: React.FC = () => {
         <div className="bg-zinc-900/90 p-5 rounded-3xl border border-zinc-800 shadow-xl space-y-4">
           <h3 className="font-extrabold text-sm text-zinc-100 font-['Outfit']">Order Summary</h3>
 
-          <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+          <div className="space-y-2.5 max-h-48 overflow-y-auto pr-1">
             {order.items?.map((item) => (
-              <div key={item.order_item_id} className="flex items-center justify-between text-xs">
-                <span className="text-zinc-300 truncate max-w-[200px]">
-                  {item.name} <span className="font-bold text-zinc-500">x{item.quantity}</span>
-                </span>
-                <span className="font-bold text-zinc-100">${(item.price_at_order_time * item.quantity).toFixed(2)}</span>
+              <div key={item.order_item_id} className="text-xs border-b border-zinc-800/60 pb-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-zinc-300 font-medium truncate max-w-[200px]">
+                    {item.name} <span className="font-bold text-zinc-500">x{item.quantity}</span>
+                  </span>
+                  <span className="font-bold text-zinc-100">${(item.price_at_order_time * item.quantity).toFixed(2)}</span>
+                </div>
+                {item.selected_variant && (
+                  <p className="text-[10px] text-brand-400 mt-0.5">
+                    Size: {typeof item.selected_variant === 'string' ? JSON.parse(item.selected_variant).name || item.selected_variant : ''}
+                  </p>
+                )}
+                {item.selected_addons && (
+                  <p className="text-[10px] text-zinc-400">
+                    Extras: {typeof item.selected_addons === 'string' ? JSON.parse(item.selected_addons).map((a: any) => a.name).join(', ') : ''}
+                  </p>
+                )}
               </div>
             ))}
           </div>
@@ -139,19 +182,27 @@ export const OrderTrackingPage: React.FC = () => {
           <div className="border-t border-zinc-800 pt-3 space-y-1.5 text-xs text-zinc-400">
             <div className="flex justify-between">
               <span>Subtotal</span>
-              <span className="font-bold text-zinc-200">${order.subtotal_amount.toFixed(2)}</span>
+              <span className="font-bold text-zinc-200">${Number(order.subtotal_amount).toFixed(2)}</span>
             </div>
+
+            {order.discount_amount && order.discount_amount > 0 ? (
+              <div className="flex justify-between text-emerald-400 font-bold">
+                <span>Discount ({order.coupon_code || 'COUPON'})</span>
+                <span>-${Number(order.discount_amount).toFixed(2)}</span>
+              </div>
+            ) : null}
+
             <div className="flex justify-between">
-              <span>Tax</span>
-              <span className="font-bold text-zinc-200">${order.tax_amount.toFixed(2)}</span>
+              <span>Tax (5%)</span>
+              <span className="font-bold text-zinc-200">${Number(order.tax_amount).toFixed(2)}</span>
             </div>
             <div className="flex justify-between">
               <span>Delivery Fee</span>
-              <span className="font-bold text-zinc-200">${order.delivery_fee.toFixed(2)}</span>
+              <span className="font-bold text-zinc-200">${Number(order.delivery_fee).toFixed(2)}</span>
             </div>
             <div className="flex justify-between text-sm font-black text-zinc-100 pt-2 border-t border-zinc-800 font-['Outfit']">
               <span>Total Paid</span>
-              <span className="text-brand-400">${order.total_amount.toFixed(2)}</span>
+              <span className="text-brand-400">${Number(order.total_amount).toFixed(2)}</span>
             </div>
           </div>
 
@@ -173,9 +224,7 @@ export const OrderTrackingPage: React.FC = () => {
               )}
             </div>
           )}
-
         </div>
-
       </div>
 
       <ReviewModal
@@ -185,6 +234,11 @@ export const OrderTrackingPage: React.FC = () => {
         onSuccess={() => fetchOrderDetails(order.order_id)}
       />
 
+      <InvoiceReceiptModal
+        order={order}
+        isOpen={isInvoiceOpen}
+        onClose={() => setIsInvoiceOpen(false)}
+      />
     </div>
   );
 };
