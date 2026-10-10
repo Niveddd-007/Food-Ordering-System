@@ -1,4 +1,4 @@
-import { User, Restaurant, Cuisine, MenuCategory, Cart, Order, DbQueryMeta, DbQueryResult } from '../types';
+import { User, Restaurant, Cuisine, MenuCategory, Cart, Order, DbQueryMeta, DbQueryResult, Coupon, AcidSimulateResult, MenuItemVariant, MenuItemAddon } from '../types';
 
 const API_BASE = '/api';
 
@@ -45,17 +45,31 @@ export const api = {
   },
   getRestaurantDetails: (id: number) => request<{ restaurant: Restaurant; categories: MenuCategory[]; reviews: any[] }>(`/restaurants/${id}`),
 
-  // Cart
+  // Cart (with Variants and Addons)
   getCart: () => request<Cart>('/cart'),
-  addToCart: (item_id: number, quantity: number = 1) => request<{ message: string }>('/cart/add', { method: 'POST', body: JSON.stringify({ item_id, quantity }) }),
+  addToCart: (payload: { item_id: number; quantity?: number; variant?: MenuItemVariant | null; addons?: MenuItemAddon[] }) =>
+    request<{ message: string }>('/cart/add', { method: 'POST', body: JSON.stringify(payload) }),
   updateCartItem: (cart_item_id: number, quantity: number) => request<{ message: string }>('/cart/update', { method: 'PUT', body: JSON.stringify({ cart_item_id, quantity }) }),
   removeCartItem: (cart_item_id: number) => request<{ message: string }>(`/cart/remove/${cart_item_id}`, { method: 'DELETE' }),
   clearCart: () => request<{ message: string }>('/cart/clear', { method: 'DELETE' }),
 
+  // Coupons & Promo Codes
+  getAvailableCoupons: () => request<Coupon[]>('/coupons/available'),
+  applyCoupon: (code: string, subtotal: number) =>
+    request<{ valid: boolean; code: string; discount_amount: number; discounted_subtotal: number; message: string }>('/coupons/apply', {
+      method: 'POST',
+      body: JSON.stringify({ code, subtotal }),
+    }),
+
   // Orders
-  placeOrder: (orderData: { delivery_address: string; payment_method: string; notes?: string }) =>
-    request<{ message: string; order_id: number; total_amount: number; transaction_ref: string }>('/orders', { method: 'POST', body: JSON.stringify(orderData) }),
-  getOrderHistory: () => request<Order[]>('/orders/history'),
+  placeOrder: (orderData: { delivery_address: string; payment_method: string; notes?: string; coupon_code?: string }) =>
+    request<{ message: string; order_id: number; subtotal: number; discount_amount: number; total_amount: number; transaction_ref: string; coupon_applied?: string }>('/orders', { method: 'POST', body: JSON.stringify(orderData) }),
+  getOrderHistory: (params?: { search?: string; status?: string }) => {
+    const query = new URLSearchParams();
+    if (params?.search) query.append('search', params.search);
+    if (params?.status) query.append('status', params.status);
+    return request<Order[]>(`/orders/history?${query.toString()}`);
+  },
   getOrderDetails: (id: number) => request<Order>(`/orders/${id}`),
   reorder: (id: number) => request<{ message: string }>(`/orders/${id}/reorder`, { method: 'POST' }),
 
@@ -66,6 +80,7 @@ export const api = {
   addMenuItem: (item: any) => request<{ message: string; item_id: number }>('/admin/menu', { method: 'POST', body: JSON.stringify(item) }),
   updateMenuItem: (id: number, item: any) => request<{ message: string }>(`/admin/menu/${id}`, { method: 'PUT', body: JSON.stringify(item) }),
   deleteMenuItem: (id: number) => request<{ message: string }>(`/admin/menu/${id}`, { method: 'DELETE' }),
+  resetDatabase: () => request<{ message: string; tables: string[]; active_tables_count: number }>('/admin/reset-db', { method: 'POST' }),
 
   // Delivery
   getAssignedDeliveries: () => request<{ driver: any; orders: Order[] }>('/delivery/assigned'),
@@ -77,7 +92,10 @@ export const api = {
   getFavorites: () => request<Restaurant[]>('/favorites'),
   toggleFavorite: (restaurant_id: number) => request<{ is_favorite: boolean; message: string }>('/favorites/toggle', { method: 'POST', body: JSON.stringify({ restaurant_id }) }),
 
-  // DBMS SQL Showcase
+  // DBMS SQL Showcase & ACID Simulator
   getDbQueries: () => request<DbQueryMeta[]>('/db/queries'),
   runDbQuery: (payload: { query_id?: number; custom_sql?: string }) => request<DbQueryResult>('/db/queries/run', { method: 'POST', body: JSON.stringify(payload) }),
+  simulateAcid: (payload: { simulate_failure: boolean; failure_step?: string }) =>
+    request<AcidSimulateResult>('/db/acid-simulate', { method: 'POST', body: JSON.stringify(payload) }),
+  explainQuery: (sql: string) => request<{ sql: string; plan: Array<{ id: number; parent: number; detail: string }> }>('/db/explain-query', { method: 'POST', body: JSON.stringify({ sql }) }),
 };
