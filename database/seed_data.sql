@@ -172,3 +172,42 @@ INSERT INTO favorites (customer_id, restaurant_id) VALUES
 (1, 4),
 (2, 2),
 (3, 3);
+
+-- 17. MENU ITEM VARIANTS (Sizes / Portions)
+INSERT INTO menu_item_variants (variant_id, item_id, name, price_adjustment) VALUES
+(1, 1, 'Regular (10")', 0.00),
+(2, 1, 'Medium (12")', 4.00),
+(3, 1, 'Large (14")', 8.00),
+(4, 2, 'Regular (10")', 0.00),
+(5, 2, 'Medium (12")', 4.50),
+(6, 2, 'Large (14")', 8.50),
+(7, 3, 'Regular (10")', 0.00),
+(8, 3, 'Medium (12")', 5.00),
+(9, 3, 'Large (14")', 9.00),
+(10, 7, 'Single Patty', 0.00),
+(11, 7, 'Double Patty', 3.50),
+(12, 7, 'Triple Beast', 6.00),
+(13, 16, 'Half Handi', 0.00),
+(14, 16, 'Full Handi (Family)', 7.00);
+
+-- 18. MENU ITEM ADDONS (Toppings & Extras)
+INSERT INTO menu_item_addons (addon_id, item_id, name, price) VALUES
+(1, 1, 'Extra Buffalo Mozzarella', 2.50),
+(2, 1, 'Fresh Basil & Garlic Dip', 1.50),
+(3, 1, 'Kalamata Olives', 1.75),
+(4, 2, 'Extra Hot Honey Drizzle', 1.50),
+(5, 2, 'Spicy Jalapeños', 1.25),
+(6, 2, 'Extra Pepperoni', 2.75),
+(7, 7, 'Extra Aged Cheddar Slice', 1.50),
+(8, 7, 'Crispy Bacon Strips', 2.25),
+(9, 7, 'Caramelized Grilled Onions', 1.20),
+(10, 10, 'Truffle Aioli Dip', 1.50),
+(11, 10, 'Shaved Parmesan Topping', 1.75);
+
+-- 19. PROMO COUPONS
+INSERT INTO coupons (coupon_id, code, description, discount_type, discount_value, min_order_amount, max_discount, usage_limit, used_count, expiry_date, is_active) VALUES
+(1, 'QUICKBITE20', '20% Off on orders above $25 (Max $10)', 'percentage', 20.00, 25.00, 10.00, 200, 12, '2028-12-31', 1),
+(2, 'FIRSTBITE', 'Flat $5.00 Off on your first gourmet order above $20', 'flat', 5.00, 20.00, NULL, 500, 45, '2028-12-31', 1),
+(3, 'FEAST50', '50% Off Mega Discount on orders above $40 (Max $20)', 'percentage', 50.00, 40.00, 20.00, 100, 8, '2028-12-31', 1),
+(4, 'WELCOME10', '10% Off Instant Discount on any order above $15', 'percentage', 10.00, 15.00, 8.00, 1000, 88, '2028-12-31', 1);
+
