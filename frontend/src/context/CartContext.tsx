@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Cart } from '../types';
+import { Cart, MenuItemVariant, MenuItemAddon } from '../types';
 import { api } from '../api';
 import { useAuth } from './AuthContext';
 
@@ -9,7 +9,7 @@ interface CartContextType {
   isCartOpen: boolean;
   setIsCartOpen: (open: boolean) => void;
   refreshCart: () => Promise<void>;
-  addToCart: (itemId: number, quantity?: number) => Promise<void>;
+  addToCart: (itemId: number, quantity?: number, variant?: MenuItemVariant | null, addons?: MenuItemAddon[]) => Promise<void>;
   updateQuantity: (cartItemId: number, quantity: number) => Promise<void>;
   removeItem: (cartItemId: number) => Promise<void>;
   clearCart: () => Promise<void>;
@@ -39,9 +39,14 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     refreshCart();
   }, [user]);
 
-  const addToCart = async (itemId: number, quantity: number = 1) => {
+  const addToCart = async (
+    itemId: number,
+    quantity: number = 1,
+    variant?: MenuItemVariant | null,
+    addons?: MenuItemAddon[]
+  ) => {
     if (!user) throw new Error('Please sign in to add items to your cart');
-    await api.addToCart(itemId, quantity);
+    await api.addToCart({ item_id: itemId, quantity, variant, addons });
     await refreshCart();
     setIsCartOpen(true);
   };
