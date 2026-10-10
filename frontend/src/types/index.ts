@@ -32,6 +32,20 @@ export interface Restaurant {
   cuisine_ids?: number[];
 }
 
+export interface MenuItemVariant {
+  variant_id: number;
+  item_id: number;
+  name: string;
+  price_adjustment: number;
+}
+
+export interface MenuItemAddon {
+  addon_id: number;
+  item_id: number;
+  name: string;
+  price: number;
+}
+
 export interface MenuItem {
   item_id: number;
   restaurant_id: number;
@@ -42,6 +56,8 @@ export interface MenuItem {
   image_url?: string;
   is_available: boolean;
   is_veg: boolean;
+  variants?: MenuItemVariant[];
+  addons?: MenuItemAddon[];
 }
 
 export interface MenuCategory {
@@ -64,6 +80,10 @@ export interface CartItem {
   is_available: boolean;
   restaurant_id: number;
   restaurant_name: string;
+  variant?: MenuItemVariant | null;
+  addons?: MenuItemAddon[];
+  selected_variant?: string;
+  selected_addons?: string;
 }
 
 export interface CartSummary {
@@ -92,12 +112,16 @@ export interface OrderItem {
   price_at_order_time: number;
   name: string;
   image_url?: string;
+  description?: string;
+  selected_variant?: string;
+  selected_addons?: string;
 }
 
 export interface Order {
   order_id: number;
   customer_id: number;
   customer_name?: string;
+  customer_email?: string;
   customer_phone?: string;
   restaurant_id: number;
   restaurant_name: string;
@@ -107,6 +131,8 @@ export interface Order {
   delivery_person_id?: number;
   delivery_driver_name?: string;
   delivery_driver_phone?: string;
+  driver_name?: string;
+  driver_phone?: string;
   vehicle_type?: string;
   license_plate?: string;
   delivery_address: string;
@@ -114,6 +140,8 @@ export interface Order {
   subtotal_amount: number;
   tax_amount: number;
   delivery_fee: number;
+  discount_amount?: number;
+  coupon_code?: string;
   total_amount: number;
   notes?: string;
   payment_method?: string;
@@ -126,6 +154,17 @@ export interface Order {
     rating: number;
     comment?: string;
   };
+}
+
+export interface Coupon {
+  coupon_id: number;
+  code: string;
+  description: string;
+  discount_type: 'percentage' | 'flat';
+  discount_value: number;
+  min_order_amount: number;
+  max_discount?: number;
+  expiry_date: string;
 }
 
 export interface DbQueryMeta {
@@ -141,4 +180,28 @@ export interface DbQueryResult {
   rowCount: number;
   executionTimeMs: number;
   rows: Record<string, any>[];
+}
+
+export interface AcidLogStep {
+  step: number;
+  name: string;
+  sql: string;
+  status: 'INFO' | 'SUCCESS' | 'COMMITTED' | 'ROLLED_BACK';
+  details: string;
+  timestamp: string;
+}
+
+export interface AcidSimulateResult {
+  outcome: 'COMMITTED' | 'ROLLED_BACK';
+  success: boolean;
+  simulated_failure: boolean;
+  error?: string;
+  message: string;
+  audit: {
+    before: { orders: number; order_items: number; payments: number };
+    after: { orders: number; order_items: number; payments: number };
+    net_change: { orders: number; order_items: number; payments: number };
+    orphan_records_prevented?: boolean;
+  };
+  logs: AcidLogStep[];
 }
