@@ -42,6 +42,8 @@ export interface MenuItem {
   image_url?: string;
   is_available: boolean;
   is_veg: boolean;
+  variants?: MenuItemVariant[];
+  addons?: MenuItemAddon[];
 }
 
 export interface MenuCategory {
@@ -92,6 +94,8 @@ export interface OrderItem {
   price_at_order_time: number;
   name: string;
   image_url?: string;
+  selected_variant?: string;
+  selected_addons?: string;
 }
 
 export interface Order {
@@ -126,6 +130,8 @@ export interface Order {
     rating: number;
     comment?: string;
   };
+  discount_amount?: number;
+  coupon_code?: string;
 }
 
 export interface DbQueryMeta {
@@ -141,4 +147,62 @@ export interface DbQueryResult {
   rowCount: number;
   executionTimeMs: number;
   rows: Record<string, any>[];
+}
+
+export interface MenuItemVariant {
+  variant_id: number;
+  item_id?: number;
+  name: string;
+  price_adjustment: number;
+}
+
+export interface MenuItemAddon {
+  addon_id: number;
+  item_id?: number;
+  name: string;
+  price: number;
+}
+
+export interface Coupon {
+  coupon_id?: number;
+  code: string;
+  description?: string;
+  discount_type?: string;
+  discount_value?: number;
+  discount_amount?: number;
+  min_order_amount?: number;
+  expiry_date?: string;
+  is_active?: boolean;
+  [key: string]: any;
+}
+
+
+export interface AcidSimulateResult {
+  outcome: 'COMMITTED' | 'ROLLED_BACK';
+  message: string;
+  audit: {
+    orphan_records_prevented: boolean;
+    before: {
+      orders: number;
+      order_items: number;
+      payments: number;
+    };
+    after: {
+      orders: number;
+      order_items: number;
+      payments: number;
+    };
+    net_change: {
+      orders: number;
+      order_items: number;
+      payments: number;
+    };
+  };
+  logs: {
+    step: number;
+    name: string;
+    sql: string;
+    details: string;
+    status: string;
+  }[];
 }
