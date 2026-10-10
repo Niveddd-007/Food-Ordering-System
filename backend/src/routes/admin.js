@@ -194,4 +194,21 @@ router.delete('/admin/menu/:id', authenticateToken, requireRole('restaurant_admi
     }
 });
 
+// Reset Database to Fresh Seed Data (Admin Quick Action for Demos / Vivas)
+router.post('/admin/reset-db', authenticateToken, requireRole('admin', 'restaurant_admin'), async (req, res) => {
+    try {
+        const { resetDatabase } = require('../db/init');
+        const result = await resetDatabase();
+        res.json({
+            message: 'Database has been successfully reset to fresh seed data!',
+            active_tables_count: result.count,
+            tables: result.tables,
+            timestamp: new Date().toISOString()
+        });
+    } catch (err) {
+        console.error('Error resetting database:', err);
+        res.status(500).json({ error: 'Failed to reset database: ' + err.message });
+    }
+});
+
 module.exports = router;
