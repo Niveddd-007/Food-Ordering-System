@@ -18,7 +18,7 @@ export const AdminDashboardPage: React.FC = () => {
               QuickBite! DBMS Suite
             </div>
             <h1 className="text-2xl font-black font-['Outfit']">Platform & Relational Schema Administrator</h1>
-            <p className="text-xs text-zinc-400 mt-0.5">3NF Normalized SQLite Engine • 16 Tables • Views & Triggers</p>
+            <p className="text-xs text-zinc-400 mt-0.5">3NF Normalized SQLite Engine • 19 Tables • Views & Triggers</p>
           </div>
         </div>
 
@@ -66,7 +66,7 @@ export const AdminDashboardPage: React.FC = () => {
           </div>
           <div>
             <div className="text-xs font-semibold text-zinc-400">Active Tables</div>
-            <div className="text-2xl font-black text-purple-400 font-['Outfit']">16</div>
+            <div className="text-2xl font-black text-purple-400 font-['Outfit']">19</div>
           </div>
         </div>
       </div>
